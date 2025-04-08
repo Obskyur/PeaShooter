@@ -1,29 +1,28 @@
-﻿using PeaShooter;
+﻿namespace PeaShooter;
 
 public class Program
 {
-    private static GameManager game = new();
+    private static readonly GameManager game = new();
     public static void Main()
     {
-        int selection = 0;
         do
         {
-            selection = getOption();
+            int selection = GetOption();
             if (selection == 1)
             {
-                int zombieType = getZombieType();
-                game.createZombie(zombieType);
+                ZType zombieType = GetZombieType();
+                game.CreateZombie(zombieType);
             }
             else
             {
-                game.damage = getDamage();
-                simulateGame();
+                game.damage = GetDamage();
+                SimulateGame();
             }
 
         } while (game.isRunning);
     }
 
-    private static int getOption()
+    private static int GetOption()
     {
         int option = 0;
 
@@ -46,7 +45,7 @@ public class Program
         return option;
     }
 
-    private static int getZombieType()
+    private static ZType GetZombieType()
     {
         int option = 0;
 
@@ -57,7 +56,7 @@ public class Program
         Console.ForegroundColor = ConsoleColor.DarkYellow;
         Console.WriteLine("3. Bucket Zombie?");
         Console.ForegroundColor = ConsoleColor.DarkBlue;
-        Console.WriteLine("4. Door Zombie?");
+        Console.WriteLine("4. ScreenDoor Zombie?");
         Console.ResetColor();
 
         while (option < 1 || option > 4)
@@ -70,10 +69,10 @@ public class Program
                 Console.ResetColor();
             }
         }
-        return option;
+        return ZTypeExtensions.IntToZType[option];
     }
 
-    private static int getDamage()
+    private static int GetDamage()
     {
         Console.WriteLine("Please enter damage value. Default is 25.");
         int damage = 25;
@@ -94,30 +93,34 @@ public class Program
         return damage;
     }
 
-    private static void simulateGame() // Change to static
+    private static void SimulateGame() // Change to static
     {
         int round = 0;
         Console.Write($"Round {round}: ");
-        printZombies();
+        PrintZombies();
         while (game.isRunning)
         {
             round++;
             Thread.Sleep(500);
             Console.Write($"Round {round}: ");
-            game.runRound();
-            printZombies();
+            game.RunRound();
+            PrintZombies();
         }
     }
 
-    private static void printZombies()
+    private static void PrintZombies()
     {
-        var zombies = game.zombies;
+        var adversaries = game.adversaries;
 
         Console.Write("[ ");
-        foreach (var z in zombies)
+        foreach (var adversary in adversaries)
         {
-            int totalHealth = z.Health + (z.Accessory?.Health ?? 0);
-            Console.Write($"{z.symbol}/{totalHealth} ");
+            int totalHealth = adversary.Health;
+            if (adversary is Accessory accessory)
+            {
+                totalHealth += accessory.wrappie?.Health ?? 0;
+            }
+            Console.Write($"{ZTypeExtensions.ZTypeToString[adversary.Type]}/{totalHealth} ");
         }
         Console.WriteLine("]");
     }

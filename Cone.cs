@@ -9,5 +9,6 @@ namespace PeaShooter
     internal class Cone : Accessory
     {
         public override int Health { get; set; } = 25;
+        public override ZType Type => ZType.Cone;
     }
 }

@@ -9,32 +9,38 @@ namespace PeaShooter
     internal class GameManager
     {
         public bool isRunning = true;
-        public Queue<Zombie> zombies = new();
+        public Queue<IDamageable> adversaries = new();
         public int damage = 25;
-        private ZombieFactory zf = new();
-        private AccessoryFactory af = new();
+        private readonly ZBuilder zb;
+        private readonly ZDirector zDir;
 
-        public void createZombie(int option)
+        public GameManager()
         {
-            zombies.Enqueue(zf.Create(af.Create(option)));
+            zb = new();
+            zDir = new(zb);
         }
 
-        public void runRound()
+        public void CreateZombie(ZType type)
         {
-            Zombie z = zombies.Peek();
-            simulateShot(z);
-            if (zombies.Count == 0)
+            adversaries.Enqueue(zDir.Construct(type));
+        }
+
+        public void RunRound()
+        {
+            IDamageable adversary = adversaries.Peek();
+            SimulateShot(adversary);
+            if (adversaries.Count == 0)
             {
                 isRunning = false;
             }
         }
 
-        private void simulateShot(Zombie z)
+        private void SimulateShot(IDamageable adversary)
         {
-            z.takeDamage(damage);
-            if (z.Health <= 0)
+            adversary.TakeDamage(damage);
+            if (adversary.Health <= 0)
             {
-                zombies.Dequeue();
+                adversaries.Dequeue();
             }
         }
     }

@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace PeaShooter
 {
-    internal interface IZombieFactory
+    internal interface IBuilder
     {
-        Zombie Create(Accessory accessory);
+        public void Reset();
+        public void SetAccessory(Accessory accessory);
+        public IDamageable GetProduct();
     }
 }

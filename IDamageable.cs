@@ -9,7 +9,9 @@ namespace PeaShooter
     internal interface IDamageable
     {
         int Health { get; set; }
-        int takeDamage(int damage);
-        void die();
+        public ZType Type { get; }
+        int TakeDamage(int damage);
+        void Die();
+        string ToString();
     }
 }

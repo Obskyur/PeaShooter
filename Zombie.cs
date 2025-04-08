@@ -8,53 +8,27 @@ namespace PeaShooter
 {
     internal class Zombie : IDamageable
     {
-        public char symbol;
+        public ZType Type => ZType.Regular;
         public int Health { get; set; } = 50;
-        public Accessory? Accessory { get; private set; }
-        public Zombie(Accessory? accessory)
-        {
-            Accessory = accessory;
-            if (Accessory != null)
-            {
-                Accessory.OnDeath += HandleAccessoryDeath;
-            }
-            symbol = accessory switch
-            {
-                Cone => 'C',
-                Bucket => 'B',
-                Door => 'S',
-                _ => 'Z',
-            };
-        }
 
-        public int takeDamage(int damage)
+        public int TakeDamage(int damage)
         {
-            if (Accessory != null)
-            {
-                damage = Accessory.takeDamage(damage);
-                Health -= damage;
-            }
-            else
-            {
-                Health -= damage;
-            }
-
+            Health -= damage;
             if (Health <= 0)
             {
-                die();
+                Die();
             }
 
             return Health <= 0 ? 0 : Health;
         }
 
-        public void die()
+        public void Die()
         {
         }
 
-        private void HandleAccessoryDeath()
+        public override string ToString()
         {
-            Accessory = null;
-            symbol = 'Z';
+            return ZTypeExtensions.ZTypeToString[Type];
         }
     }
 }
