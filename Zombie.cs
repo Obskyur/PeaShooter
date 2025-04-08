@@ -8,6 +8,7 @@ namespace PeaShooter
 {
     internal class Zombie : IDamageable
     {
+        public event Action? OnDeath;
         public ZType Type => ZType.Regular;
         public int Health { get; set; } = 50;
 
@@ -24,6 +25,7 @@ namespace PeaShooter
 
         public void Die()
         {
+            OnDeath?.Invoke();
         }
 
         public override string ToString()

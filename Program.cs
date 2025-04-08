@@ -2,53 +2,37 @@
 
 public class Program
 {
-    private static readonly GameManager game = new();
+    private static readonly GameObjectManager GMO = new();
     public static void Main()
     {
-        do
+        while (GMO.IsRunning)
         {
             int selection = GetOption();
             if (selection == 1)
             {
                 ZType zombieType = GetZombieType();
-                game.CreateZombie(zombieType);
+                GMO.CreateZombie(zombieType);
             }
             else
             {
-                game.damage = GetDamage();
                 SimulateGame();
             }
-
-        } while (game.isRunning);
+        }
     }
 
     private static int GetOption()
     {
-        int option = 0;
-
         Console.ForegroundColor = ConsoleColor.DarkGreen;
         Console.WriteLine("1. Create Zombie?");
         Console.ForegroundColor = ConsoleColor.DarkRed;
         Console.WriteLine("2. Run Game?");
         Console.ResetColor();
 
-        while (option < 1 || option > 2)
-        {
-            string? input = Console.ReadLine();
-            if (!int.TryParse(input, out option) || option <= 1 && option >= 2)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Invalid option. Please enter 1 or 2.");
-                Console.ResetColor();
-            }
-        }
-        return option;
+        return GetValidInput(1, 2);
     }
 
     private static ZType GetZombieType()
     {
-        int option = 0;
-
         Console.ForegroundColor = ConsoleColor.DarkGreen;
         Console.WriteLine("1. Normal Zombie?");
         Console.ForegroundColor = ConsoleColor.DarkRed;
@@ -59,66 +43,62 @@ public class Program
         Console.WriteLine("4. ScreenDoor Zombie?");
         Console.ResetColor();
 
-        while (option < 1 || option > 4)
-        {
-            string? input = Console.ReadLine();
-            if (!int.TryParse(input, out option) || option <= 1 && option >= 3)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Invalid option. Please enter 1, 2, 3, or 4.");
-                Console.ResetColor();
-            }
-        }
+        int option = GetValidInput(1, 4);
         return ZTypeExtensions.IntToZType[option];
     }
 
-    private static int GetDamage()
+    private static int GetValidInput(int min, int max)
     {
-        Console.WriteLine("Please enter damage value. Default is 25.");
-        int damage = 25;
-        while (true)
+        int option;
+        while (!int.TryParse(Console.ReadLine(), out option) || option < min || option > max)
         {
-            string? input = Console.ReadLine();
-            if (input == string.Empty || int.TryParse(input, out damage))
-            {
-                break;
-            }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Invalid input. Please enter a number.");
-                Console.ResetColor();
-            }
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"Invalid option. Please enter a number between {min} and {max}.");
+            Console.ResetColor();
         }
-        return damage;
+        return option;
     }
 
-    private static void SimulateGame() // Change to static
+    private static void SimulateGame()
     {
         int round = 0;
         Console.Write($"Round {round}: ");
         PrintZombies();
-        while (game.isRunning)
+        while (GMO.IsRunning)
         {
             round++;
             Thread.Sleep(500);
             Console.Write($"Round {round}: ");
-            game.RunRound();
+            AType attack = GetAType();
+            GMO.RunRound(attack);
             PrintZombies();
         }
     }
 
+    private static AType GetAType()
+    {
+        Console.WriteLine("Please select a plant to attack with:");
+        Console.ForegroundColor = ConsoleColor.DarkGreen;
+        Console.WriteLine("1. Peashooter");
+        Console.ForegroundColor = ConsoleColor.DarkRed;
+        Console.WriteLine("2. Watermelon");
+        Console.ForegroundColor = ConsoleColor.DarkYellow;
+        Console.WriteLine("3. MagnetShroom");
+        Console.ResetColor();
+
+        int option = GetValidInput(1, 3);
+        return ATypeExtensions.IntToAType[option];
+    }
+
     private static void PrintZombies()
     {
-        var adversaries = game.adversaries;
-
         Console.Write("[ ");
-        foreach (var adversary in adversaries)
+        foreach (var adversary in GMO.Adversaries)
         {
             int totalHealth = adversary.Health;
             if (adversary is Accessory accessory)
             {
-                totalHealth += accessory.wrappie?.Health ?? 0;
+                totalHealth += accessory.Wrappie?.Health ?? 0;
             }
             Console.Write($"{ZTypeExtensions.ZTypeToString[adversary.Type]}/{totalHealth} ");
         }

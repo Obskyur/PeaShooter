@@ -4,13 +4,18 @@
     {
         public event Action? OnDeath;
         public abstract int Health { get; set; }
-        public bool isMetal = false;
-        public IDamageable? wrappie;
+        public virtual bool IsMetal { get; set; } = false;
+        public IDamageable? Wrappie { get; set; }
 
         public abstract ZType Type { get; }
 
         public void Die()
         {
+            if (Wrappie != null)
+            {
+                int remainingDamage = Math.Abs(Health);
+                Wrappie.TakeDamage(remainingDamage);
+            }
             OnDeath?.Invoke();
         }
 
@@ -21,17 +26,17 @@
             {
                 Die();
             }
-            return Health <= 0 ? Math.Abs(Health) : 0;
+            return Health;
         }
 
         public void Wrap(IDamageable i)
         {
-            wrappie = i;
+            Wrappie = i;
         }
 
-        public new string ToString()
+        public override string ToString()
         {
-            return ZTypeExtensions.ZTypeToString[Type] ?? String.Empty;
+            return ZTypeExtensions.ZTypeToString[Type] ?? string.Empty;
         }
     }
 }
